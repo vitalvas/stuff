@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Source: https://github.com/vitalvas/stuff
+# Source: https://github.com/vitalvas/stuff/blob/master/aptly/repo_maker.sh
 
 set -e -o pipefail
 

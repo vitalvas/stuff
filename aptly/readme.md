@@ -15,6 +15,7 @@ Example config:
 {
   "rootDir": "/opt/aptly/repos/infra/ubuntu/jammy/data",
   "gpgDisableSign": true,
+  "skipLegacyPool": true,
   "FileSystemPublishEndpoints": {
     "main": {
       "rootDir": "/srv/www/repo-test.vitalvas.dev/public",
