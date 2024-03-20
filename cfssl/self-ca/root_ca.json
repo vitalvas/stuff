@@ -1,0 +1,17 @@
+{
+    "CN": "The VitalVas Root Certificate Authority",
+    "key": {
+        "algo": "ecdsa",
+        "size": 384
+    },
+    "ca": {
+        "expiry": "262800h"
+    },
+    "names": [
+        {
+            "C": "Universe",
+            "L": "Planet Earth",
+            "ST": "Milky Way"
+        }
+    ]
+}
