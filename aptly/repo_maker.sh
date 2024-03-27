@@ -91,6 +91,10 @@ for REPONAME in $(ls -A ${WORKDIR}); do
               /usr/bin/aptly -config=${APTLY_CONF} publish snapshot -architectures=${ARCH} ${SNAPSHOT} ${ENDPOINT}
             done
           }
+
+          echo "==> performing db maintenance"
+          /usr/bin/aptly -config=${APTLY_CONF} db cleanup
+          /usr/bin/aptly -config=${APTLY_CONF} db recover
         }
       }
     done
