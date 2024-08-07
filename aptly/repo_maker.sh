@@ -44,7 +44,7 @@ for REPONAME in $(ls -A ${WORKDIR}); do
         UPLOAD_PATH="${UPLOAD}/${REPONAME}/${OSNAME}/${OSDIST}"
         [ ! -d "${UPLOAD_PATH}" ] && /usr/bin/mkdir -p ${UPLOAD_PATH}
 
-        DEBS=$(ls -A ${UPLOAD_PATH}/*.deb 2>/dev/null)
+        DEBS=$(ls -A ${UPLOAD_PATH}/*.deb 2>/dev/null || :)
 
         [ ! -z "${DEBS}" ] && {
           /usr/bin/aptly -config=${APTLY_CONF} repo add ${APTLY_REPO} ${DEBS}
