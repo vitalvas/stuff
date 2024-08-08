@@ -92,6 +92,11 @@ for REPONAME in $(ls -A ${WORKDIR}); do
             done
           }
 
+          echo "==> deleting old snapshots"
+          for name in $(/usr/bin/aptly -config=${APTLY_CONF} snapshot list -json | /usr/bin/jq -r '.[].Name' | /usr/bin/sort -n -r | /usr/bin/tail -n +101); do
+            /usr/bin/aptly -config=${APTLY_CONF} snapshot drop ${name}
+          done
+
           echo "==> performing db maintenance"
           /usr/bin/aptly -config=${APTLY_CONF} db cleanup
           /usr/bin/aptly -config=${APTLY_CONF} db recover
