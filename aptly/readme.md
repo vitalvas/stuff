@@ -22,6 +22,13 @@ Example config:
       "linkMethod": "copy",
       "verifyMethod": "md5"
     }
+  },
+  "S3PublishEndpoints": {
+    "main": {
+      "region": "us-west-2",
+      "bucket": "repo-test.vitalvas.dev",
+      "acl": "none"
+    }
   }
 }
 ```
