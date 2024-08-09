@@ -1,0 +1,21 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag docker.pkg.github.com/${{ github.repository_owner }}/k8s-cli/kubectl:latest
+    
+    - name: Log into GitHub Container Registry
+      run: echo "${{ secrets.CR_PAT }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+    - name: Push image to GitHub Container Registry
+      run: docker push docker.pkg.github.com/${{ github.repository_owner }}/k8s-cli/kubectl:latest
