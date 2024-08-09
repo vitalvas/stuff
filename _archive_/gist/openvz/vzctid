@@ -1,0 +1,13 @@
+#!/bin/bash
+
+ctids="|"`vzlist -a -Ho ctid | tr '\n' '|' | tr -d ' '`
+
+for i in {100..399};
+do
+    if [[ ! $ctids =~ "|"$i"|" ]];
+    then
+	echo $i
+	break;
+    fi
+done
+

@@ -1,0 +1,11 @@
+[Unit]
+Description=Meta drive
+
+[Mount]
+What=/dev/sda1
+Where=/media/meta
+Type=xfs
+Options=defaults
+
+[Install]
+WantedBy=multi-user.target

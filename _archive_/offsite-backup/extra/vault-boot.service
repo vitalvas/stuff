@@ -1,0 +1,14 @@
+[Unit]
+Description=Backup Vault Boot
+After=media-meta.mount
+Wants=network-online.target
+StartLimitIntervalSec=500
+StartLimitBurst=5
+
+[Service]
+ExecStart=/media/meta/offsite-backup/bin/boot.sh
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
