@@ -1,0 +1,17 @@
+# dot graph.dot -Tpng -o graph.png
+digraph struct {
+  Document -> Section
+  Section -> Context
+  Section -> Configuration
+  Section -> Domain
+  Section -> Result
+  Context -> Extension
+  Configuration -> Params
+  Domain -> Params
+  Domain -> Groups
+  Domain -> Users
+  Groups -> Users
+  Users -> Params
+  Extension -> Condition
+  Condition -> Action
+}
