@@ -1,0 +1,22 @@
+site_name: DevOps
+site_description: DevOps by VitalVas
+site_author: Vitaliy Vasilenko (VitalVas)
+
+docs_dir: 'docs/'
+
+theme:
+  name: 'material'
+  features:
+    - search.highlight
+    - navigation.expand
+
+markdown_extensions:
+  - markdown.extensions.admonition
+  - markdown.extensions.attr_list
+  - markdown.extensions.def_list
+  - markdown.extensions.footnotes
+  - pymdownx.inlinehilite
+  - pymdownx.highlight
+  - pymdownx.tasklist:
+      custom_checkbox: true
+ 
