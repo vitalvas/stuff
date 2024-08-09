@@ -1,0 +1,56 @@
+table {
+  border-collapse: collapse;
+  color: #000;
+  font-size:15px;
+  thead {
+    tr, th {
+      background-color: #666;
+      color: #fff;
+      td {
+        padding: 4px 6px;
+        border: 1px solid #fff;
+        text-shadow: none;
+        font-weight: lighter;
+      }
+    }
+  }
+  tbody {
+    tr {
+      background-color: #eeeeee;
+      &:nth-child(even) {
+        background-color: #e4e4e4;
+      }
+      &:hover {
+        background-color: #f9f9f9;
+      }
+      td {
+        padding: 4px 6px;
+        border: 1px solid #fff;
+      }
+      &.success {
+        background-color: #dff0d8;
+        &:hover {
+          background-color: #eff8ec;
+        }
+      }
+      &.info {
+        background-color: #d9edf7;
+        &:hover {
+          background-color: #eaf5fa;
+        }
+      }
+      &.warning {
+        background-color: #fcf8e3;
+        &:hover {
+          background-color: #fdf9e7;
+        }
+      }
+      &.danger {
+        background-color: #f2dede;
+        &:hover {
+          background-color: #f8ecec;
+        }
+      }
+    }
+  }
+}
