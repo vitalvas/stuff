@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  vxdb:
+    image: vitalvas/vxdb:latest
+    restart: always
+    volumes:
+      - '/media/rss-saver/data/vxdb/data:/data'
+
+  run-habr:
+    image: ghcr.io/vitalvas/docker-python-autoenv:v3.9
+    restart: always
+    depends_on:
+      - vxdb
+    volumes:
+      - '/media/rss-saver/src/habr:/app'
