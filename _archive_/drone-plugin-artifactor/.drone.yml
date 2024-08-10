@@ -1,0 +1,25 @@
+pipeline:
+  build:
+    image: golang:1.8.3
+    environment:
+      - GOOS=linux
+      - GOARCH=amd64
+      - CGO_ENABLED=0
+      - GZIP=-9
+    commands:
+      - go build -ldflags="-s -w -X main.BuildTime=$(date -u +%s) -X main.BuildCommit=${CI_COMMIT_SHA}" -o artifactor main.go
+      - tar -czvf artifactor-${CI_BUILD_CREATED}-${CI_COMMIT_SHA:0:16}-${CI_COMMIT_BRANCH}.tgz artifactor
+    tags:
+      - "latest"
+      - ${CI_COMMIT_BRANCH}-${CI_COMMIT_SHA:0:16}
+
+  publish-docker:
+    image: plugins/docker:1.12
+    repo: jotcdn/drone-artifactor
+    tags:
+      - latest
+      - ${CI_COMMIT_BRANCH}
+    dockerfile: ./Dockerfile
+    username: ${ENV_PROD_GITHUB_USER}
+    password: ${ENV_PROD_GITHUB_PASS}
+    email: ${ENV_PROD_GITHUB_EMAIL}
