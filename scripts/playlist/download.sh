@@ -42,6 +42,7 @@ OPTIONS:
     -o, --output DIR        Output directory (default: ~/Music/downloads)
     -q, --quality KBPS      Audio quality in kbps (default: $DEFAULT_QUALITY)
                            Available: 128, 192, 256, 320
+    -c, --cleanup          Remove all downloaded files from output directory
     -h, --help             Show this help message
 
 EXAMPLES:
@@ -53,6 +54,9 @@ EXAMPLES:
     
     # Custom output directory and quality
     $SCRIPT_NAME -o ~/Music/my-downloads -q 256 "https://www.youtube.com/playlist?list=PLxxx"
+    
+    # Clean up all downloaded files
+    $SCRIPT_NAME --cleanup
 
 REQUIREMENTS:
     - yt-dlp (pip install yt-dlp)
@@ -121,6 +125,50 @@ validate_url() {
     fi
 }
 
+# Function to cleanup downloaded files
+cleanup_downloads() {
+    local output_dir=$1
+    
+    print_info "Starting cleanup of downloaded files in: $output_dir"
+    
+    if [ ! -d "$output_dir" ]; then
+        print_warning "Output directory does not exist: $output_dir"
+        return 0
+    fi
+    
+    # Count files before cleanup
+    local file_count=$(find "$output_dir" -type f \( -name "*.mp3" -o -name ".downloaded" \) 2>/dev/null | wc -l)
+    local dir_count=$(find "$output_dir" -mindepth 1 -type d 2>/dev/null | wc -l)
+    
+    if [ $file_count -eq 0 ] && [ $dir_count -eq 0 ]; then
+        print_info "No downloaded files found to clean up"
+        return 0
+    fi
+    
+    # Ask for confirmation
+    echo -e "${YELLOW}[CONFIRM]${NC} This will remove all downloaded files and directories in:"
+    echo "  $output_dir"
+    echo -e "Files to be removed: $file_count MP3 files and $dir_count directories"
+    echo -n "Are you sure? [y/N]: "
+    read -r confirmation
+    
+    case $confirmation in
+        [yY]|[yY][eE][sS])
+            # Remove all MP3 files and .downloaded archive
+            find "$output_dir" -type f \( -name "*.mp3" -o -name ".downloaded" \) -delete 2>/dev/null
+            
+            # Remove empty directories
+            find "$output_dir" -mindepth 1 -type d -empty -delete 2>/dev/null
+            
+            print_success "Cleanup completed successfully!"
+            print_info "Removed $file_count files and cleaned up empty directories"
+            ;;
+        *)
+            print_info "Cleanup cancelled"
+            ;;
+    esac
+}
+
 # Function to download playlist or video
 download_content() {
     local url=$1
@@ -151,35 +199,15 @@ download_content() {
         --audio-format mp3 \
         --audio-quality "$quality"k \
         --output "$output_dir/%(uploader)s/%(title).200s.%(id)s.%(ext)s" \
-        --exec 'python3 -c "
-import os, re, sys
-try:
-    old_path = sys.argv[1]
-    if old_path.endswith(\".mp3\"):
-        dir_name = os.path.dirname(old_path)
-        base_name = os.path.basename(old_path)
-        # Split filename and extension
-        name_part, ext = os.path.splitext(base_name)
-        # Remove content in square brackets and clean up
-        clean_name = re.sub(r\"\[.*?\]\", \"\", name_part)
-        # Clean up extra spaces, underscores, and trailing punctuation
-        clean_name = re.sub(r\"[_\s]+\", \"_\", clean_name.strip())
-        clean_name = re.sub(r\"_+\.\", \".\", clean_name)  # Remove underscores before dots
-        clean_name = re.sub(r\"^_+|_+$\", \"\", clean_name)
-        # Reconstruct filename
-        clean_filename = clean_name + ext
-        new_path = os.path.join(dir_name, clean_filename)
-        if old_path != new_path and not os.path.exists(new_path):
-            os.rename(old_path, new_path)
-except: pass
-" {} 2>/dev/null' \
+        --write-info-json \
+        --exec "$(dirname "$0")/process_metadata.py" {} \
         --restrict-filenames \
         --embed-metadata \
         --add-metadata \
         --ignore-errors \
         --no-playlist-reverse \
         --download-archive "$output_dir/.downloaded" \
-        "$url" 2>&1 | grep -v -E "^\[Exec\] Executing command:|^(import|try:|except:|    |\" )"
+        "$url" 2>&1 | grep -v -E "^\[Exec\] Executing command:"
     
     if [ $? -eq 0 ]; then
         if [[ $url =~ (playlist\?list=|list=) ]]; then
@@ -199,6 +227,7 @@ main() {
     local output_dir="$DEFAULT_OUTPUT_DIR"
     local quality="$DEFAULT_QUALITY"
     local youtube_url=""
+    local cleanup_mode=false
     
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
@@ -210,6 +239,10 @@ main() {
             -q|--quality)
                 quality="$2"
                 shift 2
+                ;;
+            -c|--cleanup)
+                cleanup_mode=true
+                shift
                 ;;
             -h|--help)
                 show_help
@@ -233,7 +266,17 @@ main() {
         esac
     done
     
-    # Validate arguments
+    # Handle cleanup mode
+    if [ "$cleanup_mode" = true ]; then
+        if [ -n "$youtube_url" ]; then
+            print_error "Cannot specify URL when using --cleanup mode"
+            exit 1
+        fi
+        cleanup_downloads "$output_dir"
+        exit 0
+    fi
+    
+    # Validate arguments for download mode
     if [ -z "$youtube_url" ]; then
         print_error "YouTube URL is required"
         echo
